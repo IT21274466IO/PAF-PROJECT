@@ -18,8 +18,10 @@ public class User {
     private String lastName;
     private String email;
     private String password;
-
     private String gender;
+
+    private String profilePic;
+    private String coverPic;
 
     private List<Integer> followers = new ArrayList<>();
 
@@ -29,7 +31,7 @@ public class User {
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Post> savedPost = new ArrayList<>();
 
-    public User(Integer id, String firstName, String lastName, String email, String password, String gender, List<Integer> followers, List<Integer> followings, List<Post> savedPost) {
+    public User(Integer id, String firstName, String lastName, String email, String password, String gender, String profilePic, String coverPic,List<Integer> followers, List<Integer> followings, List<Post> savedPost) {
         super();
         this.id = id;
         this.firstName = firstName;
@@ -37,6 +39,8 @@ public class User {
         this.email = email;
         this.password = password;
         this.gender = gender;
+        this.profilePic = profilePic;
+        this.coverPic = coverPic;
         this.followers = followers;
         this.followings = followings;
         this.savedPost = savedPost;
@@ -104,6 +108,22 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public String getCoverPic() {
+        return coverPic;
+    }
+
+    public void setCoverPic(String coverPic) {
+        this.coverPic = coverPic;
     }
 
     public void setPassword(String password) {

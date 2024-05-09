@@ -23,6 +23,8 @@ public class UserServiceImplementation implements UserService {
         newUser.setFirstName(user.getFirstName());
         newUser.setLastName(user.getLastName());
         newUser.setGender(user.getGender());
+        newUser.setProfilePic(user.getProfilePic());
+        newUser.setCoverPic(user.getCoverPic());
         newUser.setPassword(user.getPassword());
         newUser.setId(user.getId());
 
@@ -85,6 +87,12 @@ public class UserServiceImplementation implements UserService {
                     }
                     if (user.getGender() != null) {
                         oldUser.setGender(user.getGender());
+                    }
+                    if (user.getProfilePic() != null) {
+                        oldUser.setProfilePic(user.getProfilePic());
+                    }
+                    if (user.getCoverPic() != null) {
+                        oldUser.setCoverPic(user.getCoverPic());
                     }
                     return userRepository.save(oldUser);
                 })
