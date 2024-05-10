@@ -39,4 +39,9 @@ public class StoryServiceImplementation implements StoryService {
         return storyRepository.findByUserId(userId);
 
     }
+
+    @Override
+    public List<Story> findAllStories() {
+        return storyRepository.findAll();
+    }
 }

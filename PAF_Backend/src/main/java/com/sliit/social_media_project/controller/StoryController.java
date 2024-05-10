@@ -32,4 +32,10 @@ public class StoryController {
         List<Story> stories = storyService.findStoryByUserId(userId);
         return stories;
     }
+
+    @GetMapping("/api/story")
+    public List<Story> findAllStories() {
+        List<Story> stories = storyService.findAllStories();
+        return stories;
+    }
 }
