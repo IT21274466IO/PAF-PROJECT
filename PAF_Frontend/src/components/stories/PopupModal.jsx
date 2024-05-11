@@ -10,22 +10,9 @@ export default function PopupModal({ onClose }) {
 
   const [inputCaption, setInputCaption] = useState('');
   const [image, setImage ] = useState("");
-  const [ url, setUrl ] = useState("");
 
-  const uploadImage = async () => {
-    const data = new FormData()
-    data.append("file", image)
-    data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
-    data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
-    const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
-      method:"post",
-      body: data
-    })
 
-    if (cloudinaryRes?.url){
-      setUrl(cloudinaryRes.url)
-    }
-  }
+
 
   const stopPropagation = (event) => {
     event.stopPropagation();
@@ -41,25 +28,37 @@ export default function PopupModal({ onClose }) {
 
   const handleSubmitClick = async (event) => {
     event.preventDefault();
-    await uploadImage()
+
     try {
-        const result = await trigger({
-          caption: inputCaption,
-          image: url
-        })
-        if (result?.error || !result) {
-          throw new Error(result?.message);
-        }else{
-          toast.success( "Story uploaded successfully" );
-        }
+      const data = new FormData()
+      data.append("file", image)
+      data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
+      data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
 
-
+      fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
+        method:"post",
+        body: data
+      })
+          .then(resp => resp.json())
+          .then(async (data)  => {
+            const result = await trigger({
+              caption: inputCaption,
+              image:  data.url
+            })
+            if (result?.error || !result) {
+              throw new Error(result?.message);
+            }else{
+              toast.success( "Post uploaded successfully" );
+            }
+          })
+          .catch(err => toast.error( "Post upload failed" ))
     } catch (e) {
       // error handling
-      toast.error( e?.message || "Story upload failed" );
+      toast.error( e?.message || "Post upload failed" );
     }finally {
-      onClose();
+      onClose()
     }
+
   }
 
   return (

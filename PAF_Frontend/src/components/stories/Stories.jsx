@@ -32,10 +32,10 @@ export default function Stories() {
           <SwiperSlide>
             <div className="story" key={story.id}>
               <div className="user">
-                <img src={story.storyProfile} alt="" />
+                <img src={story?.user?.profilePic} alt="" />
               </div>
-              <img src={story.story} alt="" />
-              <h5>{story.name}</h5>
+              <img src={story.image} alt="" />
+              <h5>{story.caption}</h5>
             </div>
           </SwiperSlide>
         ))}

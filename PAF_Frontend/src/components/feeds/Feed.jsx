@@ -29,9 +29,9 @@ export default function Feed({ feed }) {
       <div className="top-content">
         <Link to="/profile/id">
           <div className="user">
-            <img src={feed.feedProfile} alt="" />
+            <img src={feed?.user?.profilePic} alt="" />
             <div>
-              <h5>{feed.name}</h5>
+              <h5>{feed?.user?.firstName } {feed?.user?.lastName}</h5>
               <small>1 Minutes Ago</small>
             </div>
           </div>
@@ -41,8 +41,8 @@ export default function Feed({ feed }) {
         </span>
       </div>
       <div className="mid-content">
-        <p>{feed.desc}</p>
-        <img src={feed.feedImage} alt="" />
+        <p>{feed.caption}</p>
+        <img src={feed.image} alt="" />
       </div>
       <div className="bottom-content">
         <div className="action-item">
