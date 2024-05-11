@@ -16,22 +16,6 @@ export default function AddPost() {
 
     const [inputCaption, setInputCaption] = useState('');
     const [image, setImage ] = useState("");
-    const [ url, setUrl ] = useState("");
-
-    const uploadImage = async () => {
-        const data = new FormData()
-        data.append("file", image)
-        data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
-        data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
-        const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
-            method:"post",
-            body: data
-        })
-
-        if (cloudinaryRes?.url){
-            setUrl(cloudinaryRes.url)
-        }
-    }
 
     const handleInputCaptionChange = (event) => {
         setInputCaption(event.target.value);
@@ -43,17 +27,30 @@ export default function AddPost() {
 
     const handlePostClick = async (event) => {
         event.preventDefault();
-        await uploadImage()
+
         try {
-            const result = await trigger({
-                caption: inputCaption,
-                image: url
+            const data = new FormData()
+            data.append("file", image)
+            data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
+            data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
+
+            fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
+                method:"post",
+                body: data
             })
-            if (result?.error || !result) {
-                throw new Error(result?.message);
-            }else{
-                toast.success( "Post uploaded successfully" );
-            }
+                .then(resp => resp.json())
+                .then(async (data)  => {
+                    const result = await trigger({
+                        caption: inputCaption,
+                        image:  data.url
+                    })
+                    if (result?.error || !result) {
+                        throw new Error(result?.message);
+                    }else{
+                        toast.success( "Post uploaded successfully" );
+                    }
+                })
+                .catch(err => toast.error( "Post upload failed" ))
         } catch (e) {
             // error handling
             toast.error( e?.message || "Post upload failed" );
