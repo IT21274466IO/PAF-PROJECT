@@ -24,7 +24,8 @@ export default function Login() {
     setInputPassword(event.target.value);
   };
 
-  const handleLoginClick = async () => {
+  const handleLoginClick = async (event) => {
+    event.preventDefault();
     try {
       const result = await trigger({ email: inputUsername, password:inputPassword })
       if (result?.error || !result) {

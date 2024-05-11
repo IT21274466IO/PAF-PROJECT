@@ -38,7 +38,8 @@ export default function Signup() {
     setInputGender(event.target.value);
   };
 
-  const handleSignUpClick = async () => {
+  const handleSignUpClick = async (event) => {
+    event.preventDefault();
     try {
       const result = await trigger({
           firstName: inputFirstName,
