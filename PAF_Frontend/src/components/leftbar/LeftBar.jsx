@@ -14,16 +14,18 @@ import Watch from "../../assets/icon/4.png";
 import gallery from "../../assets/icon/5.png";
 import videos from "../../assets/icon/6.png";
 import messages from "../../assets/icon/7.png";
+import useUserStore from "../../hooks/useUserStore.js";
 
 export default function LeftBar() {
+  const user = useUserStore((state) => state.user)
   return (
     <div className="leftBar">
       <div className="left-container">
         <div className="menu">
-          <Link to="/profile/id">
+          <Link to={`/profile/${user?.id}`}>
             <div className="user">
-              <img src={CurrentUser.map((user) => user.ProfieImage)} alt="" />
-              <h4>Batman</h4>
+              <img src={user?.profilePic} alt="" />
+              <h4>{user?.firstName}</h4>
             </div>
           </Link>
 

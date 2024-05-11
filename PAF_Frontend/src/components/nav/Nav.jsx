@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import "./nav.css";
-import { Link } from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
 
 //Fake Api....................
 import CurrentUser from "../../FackApis/CurrentUserData";
@@ -19,8 +19,13 @@ import {
   faSearch,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import useUserStore from "../../hooks/useUserStore.js";
 
 export default function Nav() {
+  const user = useUserStore((state) => state.user)
+  if (!user) {
+    return <Navigate to="/" replace={true} />
+  }
   return (
     <nav>
       <div className="nav-container">
@@ -53,8 +58,10 @@ export default function Nav() {
             <FontAwesomeIcon icon={faBars} />
           </Link>
           <div className="user">
-            <img src={CurrentUser.map((user) => user.ProfieImage)} alt="" />
-            <h4>Batman</h4>
+            <Link to={`/profile/${user?.id}`} className="user">
+            <img src={user?.profilePic} alt="" />
+            <h4>{user?.firstName}</h4>
+            </Link>
           </div>
         </div>
 
