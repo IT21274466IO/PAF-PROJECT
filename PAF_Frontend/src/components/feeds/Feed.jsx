@@ -17,7 +17,7 @@ import { faComment, faHeart, faListDots, faShare } from "@fortawesome/free-solid
 //States
 import { useState } from "react";
 
-export default function Feed({ fed }) {
+export default function Feed({ feed }) {
 
   let [openComment, setOpenComment] = useState(false);
   const CommentHandler = () => {
@@ -25,13 +25,13 @@ export default function Feed({ fed }) {
   }
 
   return (
-    <div className="feed" key={fed.id}>
+    <div className="feed" key={feed.id}>
       <div className="top-content">
         <Link to="/profile/id">
           <div className="user">
-            <img src={fed.feedProfile} alt="" />
+            <img src={feed.feedProfile} alt="" />
             <div>
-              <h5>{fed.name}</h5>
+              <h5>{feed.name}</h5>
               <small>1 Minutes Ago</small>
             </div>
           </div>
@@ -41,8 +41,8 @@ export default function Feed({ fed }) {
         </span>
       </div>
       <div className="mid-content">
-        <p>{fed.desc}</p>
-        <img src={fed.feedImage} alt="" />
+        <p>{feed.desc}</p>
+        <img src={feed.feedImage} alt="" />
       </div>
       <div className="bottom-content">
         <div className="action-item">

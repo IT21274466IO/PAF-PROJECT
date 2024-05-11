@@ -1,13 +1,51 @@
 /* eslint-disable react/no-unescaped-entities */
+import toast, { Toaster } from 'react-hot-toast';
 //import React from 'react'
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import "./login.css";
+import {useState} from "react";
+import {useSignIn} from "../../hooks/useAuth.js";
+import useAuthStore from "../../hooks/useAuthStore.js";
+
 
 export default function Login() {
+  const { trigger, isMutating } = useSignIn()
+  const setAuthToken = useAuthStore((state) => state.setAuthToken)
+  const navigate = useNavigate();
+
+  const [inputUsername, setInputUsername] = useState('');
+  const [inputPassword, setInputPassword] = useState('');
+
+  const handleInputUsernameChange = (event) => {
+    setInputUsername(event.target.value);
+  };
+
+  const handleInputPasswordChange = (event) => {
+    setInputPassword(event.target.value);
+  };
+
+  const handleLoginClick = async (event) => {
+    event.preventDefault();
+    try {
+      const result = await trigger({ email: inputUsername, password:inputPassword })
+      if (result?.error || !result) {
+        throw new Error(result?.message);
+      }else{
+        toast.success( "Login Success" );
+        setAuthToken(result?.token);
+        navigate("/");
+      }
+    } catch (e) {
+      // error handling
+      toast.error( e?.message || "Login Failed" );
+    }
+  };
+
   return (
     <div className="login">
       <div className="card">
         <div className="left">
+          <Toaster />
           <h2>-
             <br />
             FitVerse <br />-
@@ -23,9 +61,9 @@ export default function Login() {
           </Link>
         </div>
         <form className="right">
-          <input type="text" required placeholder="Username" />
-          <input type="password" required placeholder="Password" />
-          <button type="submit" className="btn">
+          <input value={inputUsername} onChange={handleInputUsernameChange} type="text" required placeholder="Username" />
+          <input value={inputPassword} onChange={handleInputPasswordChange} type="password" required placeholder="Password" />
+          <button onClick={handleLoginClick} disabled={isMutating} type="submit" className="btn">
             Login
           </button>
         </form>
