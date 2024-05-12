@@ -100,44 +100,20 @@ import gallery from '../../assets/icon/5.png';
 import videos from '../../assets/icon/6.png';
 import messages from '../../assets/icon/7.png';
 import axios from 'axios';
+import useUserStore from "../../hooks/useUserStore.js";
 
 export default function LeftBar() {
-  const [token, setToken] = useState('');
-  const [currentUserData, setCurrentUserData] = useState({});
+  const user = useUserStore((state) => state.user)
 
-  useEffect(() => {
-    const getToken = localStorage.getItem('token');
-    setToken(getToken);
-
-    const fetchUser = async () => {
-      try {
-        const headers = {
-          Authorization: `Bearer ${getToken}`,
-          'Content-Type': 'application/json',
-        };
-
-        const currentUser = await axios.get(
-          'http://localhost:5454/api/users/profile',
-          { headers }
-        );
-        setCurrentUserData(currentUser.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchUser();
-    console.log(currentUserData);
-  }, [token]);
   return (
     <div className="leftBar">
       <div className="left-container">
         <div className="menu">
-          <Link to="/profile/id">
+          <Link to={`/profile/${user?.id}`}>
             <div className="user">
-              <img src={currentUserData.profilePic} alt="" />
+              <img src={user?.profilePic} alt="" />
               <h4>
-                {currentUserData.firstName + ' ' + currentUserData.lastName}
+                {user?.firstName } { user?.lastName}
               </h4>
             </div>
           </Link>

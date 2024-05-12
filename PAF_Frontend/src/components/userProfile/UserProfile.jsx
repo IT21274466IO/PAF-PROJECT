@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import "./userProfile.css";
-import { Link } from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 
 // Fake Apis....................
 import CurrentUserData from "../../FackApis/CurrentUserData";
@@ -9,10 +9,34 @@ import CurrentUserData from "../../FackApis/CurrentUserData";
 // Font Awesome icons..............
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faFeed, faLink, faMessage } from "@fortawesome/free-solid-svg-icons";
+import {useGetUser, useUpdateUser} from "../../hooks/useUser.js";
+import toast from "react-hot-toast";
+import useUserStore from "../../hooks/useUserStore.js";
 
 export default function UserProfile() {
+  let { id } = useParams();
+  const setUser = useUserStore((state) => state.setUser)
+  const user = useUserStore((state) => state.user)
+  const { trigger, isMutating } = useUpdateUser();
+  const { data, error, isLoading } = useGetUser(id);
+
+  useEffect(() => {
+    setUser(data)
+  }, [data]);
 
   const [modal, setModal] = useState(false);
+  const [inputFirstName, setInputFirstName] = useState(user?.firstName);
+  const [inputLastName, setInputLastName] = useState(user?.lastName);
+  const [inputEmail, setInputEmail] = useState(user?.email);
+
+  const [imageCover, setImageCover ] = useState("");
+  const [imageProf, setImageProf ] = useState("");
+
+  useEffect(()=>{
+    setInputFirstName(user?.firstName);
+    setInputLastName(user?.lastName);
+    setInputEmail(user?.email);
+  },[user])
 
   const toggleModal = () => {
     setModal(!modal);
@@ -24,22 +48,79 @@ export default function UserProfile() {
     document.body.classList.remove('active-modal')
   }
 
+
+  const handleFirstNameChange = (event) => {
+    setInputFirstName(event.target.value);
+  };
+
+  const handleLastNameChange = (event) => {
+    setInputLastName(event.target.value);
+  };
+
+  const handleEmailChange = (event) => {
+    setInputEmail(event.target.value);
+  };
+
+  const handleInputCoverChange = (event) => {
+    setImageCover(event.target.files[0]);
+  }
+
+  const handleInputProfChange = (event) => {
+    setImageProf(event.target.files[0]);
+  }
+
+
   const handleFormSubmit = (event) => {
     event.preventDefault();
     // Add logic to handle form submission and update user details
-    toggleModal(); // Close the modal after form submission
+    try {
+      const data = new FormData()
+      data.append("file", imageCover)
+      data.append("file", imageProf)
+      data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
+      data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
+
+      fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
+        method:"post",
+        body: data
+      })
+          .then(resp => resp.json())
+          .then(async (clddata)  => {
+            const result = await trigger({
+              firstName: inputFirstName,
+              lastName: inputLastName,
+              email: inputEmail,
+              coverPic: clddata?.url || data?.coverPic,
+              profilePic: clddata?.url || data?.profilePic,
+            })
+            if (result?.error || !result) {
+              throw new Error(result?.message);
+            }else{
+              setUser(result);
+              toast.success( "Profile uploaded successfully" );
+            }
+          })
+          .catch(err => toast.error( "Profile upload failed" ))
+    } catch (e) {
+      // error handling
+      toast.error( e?.message || "Profile upload failed" );
+    }finally {
+      toggleModal();
+    }
+
+     // Close the modal after form submission
   };
   
   return (
     <div className="userProfile">
       <div className="cover-photos">
-        <img src={CurrentUserData.map((user) => user.CoverPhoto)} alt="" />
+        <img src={user?.coverPic} alt="" />
       </div>
       <div className="profile-info">
-        <img src={CurrentUserData.map((user) => user.ProfieImage)} alt="" />
+        <img src={user?.profilePic} alt="" />
         <div className="user-name">
-          <h3>{CurrentUserData.map((user) => user.name)}</h3>
-          <h5>{CurrentUserData.map((user) => user.username)}</h5>
+          <h3>{user?.firstName} {user?.lastName}</h3>
+          <h5>{user?.email}</h5>
         </div>
         <div className="profile-button">
           <Link to="/chatbox/id">
@@ -65,22 +146,22 @@ export default function UserProfile() {
               <h2 className="editProfileModel">Edit Profile</h2>
               <form onSubmit={handleFormSubmit}>
                 <label htmlFor="profilePicture">Profile Picture:</label>
-                <input type="file" id="profilePicture" name="profilePicture" placeholder="Enter new profile picture URL"/>
+                <input onChange={handleInputProfChange} type="file" id="profilePicture" name="profilePicture" placeholder="Enter new profile picture URL"/>
                 
                 <label htmlFor="coverPhoto">Cover Photo:</label>
-                <input type="file" id="coverPhoto" name="coverPhoto" placeholder="Enter new cover photo URL"/>
+                <input onChange={handleInputCoverChange} type="file" id="coverPhoto" name="coverPhoto" placeholder="Enter new cover photo URL"/>
                 
                 <label htmlFor="firstName">First Name:</label>
-                <input type="text" id="firstName" name="firstName" placeholder="Enter new first name"/>
+                <input value={inputFirstName} onChange={handleFirstNameChange} type="text" id="firstName" name="firstName" placeholder="Enter new first name"/>
                 
                 <label htmlFor="lastName">Last Name:</label>
-                <input type="text" id="lastName" name="lastName" placeholder="Enter new last name"/>
+                <input value={inputLastName} onChange={handleLastNameChange} type="text" id="lastName" name="lastName" placeholder="Enter new last name"/>
                 
                 <label htmlFor="email">Email:</label>
-                <input type="email" id="email" name="email" placeholder="Enter new email address"/>
+                <input value={inputEmail} onChange={handleEmailChange} type="email" id="email" name="email" placeholder="Enter new email address"/>
 
                 <button type="submit" className="btn btn-primary">Save Changes</button>
-                <button type="button" className='btn btn-red' onClick={toggleModal}>Cancel</button>
+                <button disabled={isMutating} type="button" className='btn btn-red' onClick={toggleModal}>Cancel</button>
               </form>
             </div>
           </div>

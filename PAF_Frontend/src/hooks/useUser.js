@@ -1,10 +1,10 @@
 import useSWRMutation from 'swr/mutation';
 import useSWR from 'swr'
-import {sendGetRequest, sendPostRequest} from "./useRequest.js";
+import {sendGetRequest, sendPutRequest} from "./useRequest.js";
 
 
-export const useUpdateUser = (id) => {
-    const { trigger, isMutating  } = useSWRMutation(`${import.meta.env.VITE_SERVER_URL}api/users/${id}`, sendPostRequest);
+export const useUpdateUser = () => {
+    const { trigger, isMutating  } = useSWRMutation(`${import.meta.env.VITE_SERVER_URL}/api/users/updateUser`, sendPutRequest);
 
     return {
         trigger,
