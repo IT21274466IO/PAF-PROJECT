@@ -69,29 +69,33 @@ export default function UserProfile() {
     setImageProf(event.target.files[0]);
   }
 
+  const uploadFile = async (file) => {
+    const data = new FormData()
+    data.append("file", file)
+    data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
+    data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
+      method:"post",
+      body: data
+    })
+    const data2 = await res.json()
+    return data2
+  }
 
-  const handleFormSubmit = (event) => {
+
+  const handleFormSubmit = async (event) => {
     event.preventDefault();
     // Add logic to handle form submission and update user details
     try {
-      const data = new FormData()
-      data.append("file", imageCover)
-      data.append("file", imageProf)
-      data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET)
-      data.append("cloud_name",import.meta.env.VITE_CLOUDINARY_NAME)
+      const imgCover = await uploadFile(imageCover);
+      const imgProf = await uploadFile(imageProf);
 
-      fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,{
-        method:"post",
-        body: data
-      })
-          .then(resp => resp.json())
-          .then(async (clddata)  => {
             const result = await trigger({
               firstName: inputFirstName,
               lastName: inputLastName,
               email: inputEmail,
-              coverPic: clddata?.url || data?.coverPic,
-              profilePic: clddata?.url || data?.profilePic,
+              coverPic: imgCover?.secure_url || user?.coverPic,
+              profilePic: imgProf?.secure_url || user?.profilePic,
             })
             if (result?.error || !result) {
               throw new Error(result?.message);
@@ -99,8 +103,8 @@ export default function UserProfile() {
               setUser(result);
               toast.success( "Profile uploaded successfully" );
             }
-          })
-          .catch(err => toast.error( "Profile upload failed" ))
+
+
     } catch (e) {
       // error handling
       toast.error( e?.message || "Profile upload failed" );
